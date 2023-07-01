@@ -1,7 +1,37 @@
+'use client';
+
 import React from 'react';
+import useSwr from 'swr';
 import Link from 'next/link';
+import axios from 'axios';
+
+
+type UserResponseData = {
+  id: number;
+  oauth_id: string | null;
+  name: string;
+  email: string;
+  email_verified_at: null | string;
+  created_at: string;
+  updated_at: string;
+};
+
+const STORAGE_KEY_ACCESS_TOKEN = 'access-token';
+
+const baseUrl = 'http://localhost';
 
 const NavBar = () => {
+  const { data: user, error } = useSwr('/api/user', async url => {
+    const token = window.localStorage.getItem(STORAGE_KEY_ACCESS_TOKEN);
+    return (await axios.get<UserResponseData>(`${baseUrl}${url}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })).data;
+  });
+
+  const loggedIn = !!user;
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="py-4 lg:px-8 mx-4 lg:mx-0">
@@ -18,9 +48,9 @@ const NavBar = () => {
               </ul>
             </nav>
             <div className="flex items-center border-l border-slate-200 dark:border-slate-800 ml-6 pl-6">
-              <Link href="/login">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-200 dark:bg-slate-800">
-                  ?
+              <Link href={loggedIn ? '/profile' : '/login'}>
+                <div className={"w-8 h-8 rounded-full  flex items-center justify-center bg-slate-200 dark:bg-slate-800" + (loggedIn && ' bg-green-200')}>
+                  {user ? user.name.substring(0, 1) : '?'}
                 </div>
               </Link>
             </div>
