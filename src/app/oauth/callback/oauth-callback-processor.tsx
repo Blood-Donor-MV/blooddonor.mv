@@ -1,27 +1,9 @@
 'use client';
 
+import { getTokenFromCode, setAccessToken } from '@app/auth';
 import axios from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-
-const url = 'http://localhost/api/auth/oauth/callback';
-
-type UserResponseData = {
-  id: number;
-  oauth_id: string | null;
-  name: string;
-  email: string;
-  email_verified_at: null | string;
-  created_at: string;
-  updated_at: string;
-};
-
-type AuthCallbackResponseData = {
-  time: string;
-  data: {
-    access_token: string;
-  };
-};
 
 const STORAGE_KEY_ACCESS_TOKEN = 'access-token';
 
@@ -45,20 +27,9 @@ export default function OAuthCallbackProcessor() {
       setStatus('loading');
 
       try {
-        const res = await axios.request<AuthCallbackResponseData>({
-          url,
-          method: 'POST',
-          data: { provider: 'google' },
-          params: { code: (code) },
-          headers: {
-            "Accept": "application/json",
-          },
-        });
+        const res = await getTokenFromCode(code);
 
-        console.log('status', res.status);
-        console.log('data', res.data);
-
-        window.localStorage.setItem(STORAGE_KEY_ACCESS_TOKEN, res.data.data.access_token);
+        setAccessToken(res.data.data.access_token);
         setStatus(`${res.status}`);
         router.replace('/');
       } catch(e) {

@@ -4,7 +4,7 @@ import React from 'react';
 import useSwr from 'swr';
 import Link from 'next/link';
 import axios from 'axios';
-
+import { request } from '@app/utils/api';
 
 type UserResponseData = {
   id: number;
@@ -16,18 +16,9 @@ type UserResponseData = {
   updated_at: string;
 };
 
-const STORAGE_KEY_ACCESS_TOKEN = 'access-token';
-
-const baseUrl = 'http://localhost';
-
 const NavBar = () => {
   const { data: user, error } = useSwr('/api/user', async url => {
-    const token = window.localStorage.getItem(STORAGE_KEY_ACCESS_TOKEN);
-    return (await axios.get<UserResponseData>(`${baseUrl}${url}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })).data;
+    return (await request<UserResponseData>({ url })).data;
   });
 
   const loggedIn = !!user;
