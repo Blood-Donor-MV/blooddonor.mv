@@ -25,7 +25,7 @@ const client = axios.create({
   timeout: 1000,
 });
 
-export const API_URL = 'http://192.168.68.66';
+export const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 client.interceptors.request.use(
   (config) => {

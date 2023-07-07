@@ -1,4 +1,5 @@
-import { request } from "./utils/api";
+import axios from "axios";
+import { API_URL, ApiWrappedData, request } from "./utils/api";
 
 export const STORAGE_KEY_ACCESS_TOKEN = 'access-token';
 
@@ -28,5 +29,23 @@ export async function getTokenFromCode(code: string) {
     headers: {
       "Accept": "application/json",
     },
+  });
+}
+
+type AuthLinkResponse = {
+  redirect_url: string;
+};
+
+export enum AuthProvider {
+  GOOGLE = 'google',
+}
+
+export async function getAuthLink(provider: AuthProvider) {
+  const url = `${API_URL}/api/auth/oauth`;
+
+  return axios.request<ApiWrappedData<AuthLinkResponse>>({
+    url,
+    method: 'POST',
+    data: { provider },
   });
 }
